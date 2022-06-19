@@ -20,5 +20,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TMP_RESULT=$(gh pr view --json labels --jq ".labels | .[] | select(.name == \"waiting\") | .name")
+          pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          TMP_RESULT=$(gh pr view $pull_number --json labels --jq ".labels | .[] | select(.name == \"waiting\") | .name")
           exit $((( $(expr length $TMP_RESULT) > 0 )))
