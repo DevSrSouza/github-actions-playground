@@ -1,0 +1,37 @@
+name: Scheduled label check
+
+on:
+  schedule:
+    - cron:  '* * * * *'
+
+jobs:
+  check:
+    name: Check label
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: List PRs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PRS=$(gh pr list --jq ".[] | select(.labels.[].name == \"waiting\") | .number" --json labels,number)
+          if [ -z "$PRS" ]
+          then
+             exit 0
+          else
+             for prNumber in $PRS
+             do
+                echo $prNumber
+                RESULT=$(gh pr checks $prNumber | grep -E "Check label.*fail")
+                if [ -z "$RESULT" ]
+                then
+                   echo "nana"
+                else
+                   JOB_ID=$(echo $RESULT | sed -e "s/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/[^\/]*\/\([^\?]*\)\?.*/\1/")
+                   gh run rerun --job $JOB_ID
+                fi
+             done
+          fi
+
+
+# CHECK_ID=$(gh api repos/{owner}/{repo}/actions/jobs/$JOB_ID --jq ".id")
