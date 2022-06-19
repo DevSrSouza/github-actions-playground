@@ -17,6 +17,8 @@ jobs:
 #        with:
 #          java-version: 1.11
       - name: Check label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TMP_RESULT=$(gh pr view --json labels --jq ".labels | .[] | select(.name == \"waiting\") | .name")
           exit $((( $(expr length $TMP_RESULT) > 0 )))
