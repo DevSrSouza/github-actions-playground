@@ -22,4 +22,5 @@ jobs:
         run: |
           pull_number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
           TMP_RESULT=$(gh pr view $pull_number --json labels --jq ".labels | .[] | select(.name == \"waiting\") | .name")
-          exit $((( $(expr length $TMP_RESULT) > 0 )))
+          result=bash -c "echo \"$((( $(expr length $TMP_RESULT) > 0 )))\""
+          exit $result
